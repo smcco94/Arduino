@@ -1,5 +1,3 @@
-#include <Ultrasonic.h>
-
 // --------------------------------------------- BIBLIOTECAS --------------------------------------------- //
 
 
@@ -23,7 +21,8 @@ int intervalo = 1000;                      // Intervalo de tempo entre os movime
 int start = 0;
 float seno;
 int freq;
-int tst = 0;
+int mag = 0;
+int cont = 0;
 
 // --------------------------------------------- FUNÇÕES --------------------------------------------- //
 
@@ -49,13 +48,24 @@ void Motor_HOR()  // Movimento no sentido horário
       delay(AFR);      // Atraso de tempo entre as fases em milisegundos
     }
 }
+void Motor_HOR_DESLOC(int voltas)  // Movimento no sentido horário
+{
+  for (int i = 0; i < 15 * voltas; i++)  // incrementa o contador i de 0 a 511 - uma volta
+
+    for (int j = 0; j < 4; j++)  // incrementa o contador j de 0 a 3
+    {
+      PORTB = HOR[j];  // Carrega bytes da Matriz HOR na Porta B
+      PORTD = HOR[j];  // Carrega bytes da Matriz HOR na Porta D
+      delay(AFR);      // Atraso de tempo entre as fases em milisegundos
+    }
+}
 
 // --------------------------------------------- SETUP --------------------------------------------- //
 
 void setup() {
-  DDRB = DDRB | B00001111;  // B00001111; || 0x0F;    // Configura Portas D8 até D11 como saída
+  DDRB = DDRB | B00001111;  // B00001111; || 0x0F;    // Configura Portas D8 até D11
   PORTB = 0x00;             // Reset dos bits da Porta B (D08 a D15) ou nível lógico baixo
-  DDRD = DDRD | B01001111;  // B00001111; || 0x0F;    // Configura Portas D0 a D3 como saída
+  DDRD = DDRD | B01001111;  // B00001111; || 0x0F;    // Configura Portas D0 a D7
   PORTD = 0x00;             // Reset dos bits da Porta D (D00 a D7) ou nível lógico baixo
 }
 
@@ -64,16 +74,20 @@ void setup() {
 void loop() {
   start = digitalRead(4);
   if (start == 1) {
+    cont = 0;
     do {
-      tst = digitalRead(5);
-      if (tst == 1) {
-        // função de injetar, reconhecer cor e injetar qtd certa
-        //dar 11 passos
+      mag = digitalRead(5);
+      if (mag == 1) {
+        //digitalWrite(6,1);
+        delay(1000);
+        //digitalWrite(6,0);
+        Motor_HOR_DESLOC(17);
+        cont = cont + 1;
       } else {
         Motor_HOR();
       }
-    } while (true);  // Fim de curso
-    daley(1000);
-    Motor_AHO(7);    // 7 para inicio
+    } while (cont < 3);  // Fim de curso
+    delay(1000);
+    //Motor_AHO(7);  // 7 para inicio
   }
 }
