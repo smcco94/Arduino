@@ -10,7 +10,8 @@
 // https://blog.eletrogate.com/guia-completo-do-motor-de-passo-28byj-48-driver-uln2003/
 // https://www.youtube.com/watch?v=SkIy7oqaKnk
 // https://www.youtube.com/watch?v=UhTRrjYXqPU
-
+#include <NewPing.h>
+#define MAX_DISTANCE 200
 // --------------------------------------------- DEFINIÇÕES --------------------------------------------- //
 
 byte HOR[4] = { 0x09, 0x03, 0x06, 0x0C };  // Matriz dos bytes das Fases do Motor - sentido Horário Full Step
@@ -23,7 +24,10 @@ float seno;
 int freq;
 int mag = 0;
 int cont = 0;
-
+int PinTrigger = 13;  // Pino usado para disparar os pulsos do sensor
+int PinEcho = 12;     // Pino usado para ler a saida do sensor
+NewPing sonar(PinTrigger, PinEcho, MAX_DISTANCE);
+float CM = 0;
 // --------------------------------------------- FUNÇÕES --------------------------------------------- //
 
 void Motor_AHO(int voltas)  // Movimento no sentido anti-horário
@@ -59,7 +63,6 @@ void Motor_HOR_DESLOC(int voltas)  // Movimento no sentido horário
       delay(AFR);      // Atraso de tempo entre as fases em milisegundos
     }
 }
-
 // --------------------------------------------- SETUP --------------------------------------------- //
 
 void setup() {
@@ -78,16 +81,36 @@ void loop() {
     do {
       mag = digitalRead(5);
       if (mag == 1) {
-        //digitalWrite(6,1);
-        delay(1000);
-        //digitalWrite(6,0);
-        Motor_HOR_DESLOC(17);
+          CM = (sonar.ping_cm());
+          if (CM >= 5) {
+            delay(1000);
+            digitalWrite(6,1);
+            delay(2000);
+            digitalWrite(6,0);
+            delay(1000);
+          }
+          else if (CM >= 4 && CM < 5) {
+            delay(1000);
+            digitalWrite(6,1);
+            delay(1500);
+            digitalWrite(6,0);
+            delay(1000);
+          }
+          else {
+            delay(1000);
+            digitalWrite(6,1);
+            delay(1000);
+            digitalWrite(6,0);
+            delay(1000);
+          }
+        delay(3000);
+        Motor_HOR_DESLOC(20);
         cont = cont + 1;
       } else {
         Motor_HOR();
       }
     } while (cont < 3);  // Fim de curso
     delay(1000);
-    //Motor_AHO(7);  // 7 para inicio
+    Motor_AHO(5);  // 5 para inicio
   }
 }
