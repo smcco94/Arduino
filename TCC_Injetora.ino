@@ -70,6 +70,7 @@ void setup() {
   PORTB = 0x00;             // Reset dos bits da Porta B (D08 a D15) ou nível lógico baixo
   DDRD = DDRD | B01001111;  // B00001111; || 0x0F;    // Configura Portas D0 a D7
   PORTD = 0x00;             // Reset dos bits da Porta D (D00 a D7) ou nível lógico baixo
+  //Serial.begin(9600);
 }
 
 // --------------------------------------------- LOOP --------------------------------------------- //
@@ -81,27 +82,32 @@ void loop() {
     do {
       mag = digitalRead(5);
       if (mag == 1) {
+        Motor_HOR_DESLOC(9);
           CM = (sonar.ping_cm());
-          if (CM >= 5) {
+          //Serial.println(CM);
+          if (CM > 4.5 && CM < 5.5) { // molde maior
             delay(1000);
             digitalWrite(6,1);
-            delay(2000);
+            delay(9000);
             digitalWrite(6,0);
             delay(1000);
           }
-          else if (CM >= 4 && CM < 5) {
+          else if (CM > 5.5 && CM < 6.5) { // medio
             delay(1000);
             digitalWrite(6,1);
-            delay(1500);
+            delay(7000);
             digitalWrite(6,0);
             delay(1000);
           }
-          else {
+          else if (CM > 6.5 && CM < 7.5){ // menor
             delay(1000);
             digitalWrite(6,1);
-            delay(1000);
+            delay(4500);
             digitalWrite(6,0);
             delay(1000);
+          }
+          else{
+            // sem molde
           }
         delay(3000);
         Motor_HOR_DESLOC(20);
@@ -111,6 +117,7 @@ void loop() {
       }
     } while (cont < 3);  // Fim de curso
     delay(1000);
-    Motor_AHO(5);  // 5 para inicio
+    Motor_AHO(8);  // 5 para inicio
+    //Serial.println("FIM");
   }
 }
